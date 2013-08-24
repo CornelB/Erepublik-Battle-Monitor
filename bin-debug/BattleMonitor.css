@@ -1,0 +1,33 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+
+global
+{
+	font-size: 12;
+	font-weight: bold;
+ 	content-background-color: #92927B;
+	color: #000000;
+	font-family: Arial;
+}
+
+.fwnormal
+{
+	font-weight: normal;
+}
+
+.containerVBox {
+	/*backgroundColor: #aaaa89;
+*/
+/*	backgroundColor: #ffffaa;*/
+	borderThickness: 1;
+	borderColor: black;
+	borderStyle: solid;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingTop: 0;
+	paddingBottom: 0;
+	horizontalGap: 0;
+	verticalGap: 0;	
+}

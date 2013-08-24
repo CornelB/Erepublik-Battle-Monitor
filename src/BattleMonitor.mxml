@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" 
+					   xmlns:local="*" 
+					  closing="closeAll()"  backgroundColor="#92927B" applicationComplete="init()"  showStatusBar="false" width="180" height="40" alwaysInFront="true">
+	<fx:Style source="BattleMonitor.css"/>
+
+	<fx:Script>
+		<![CDATA[
+
+			
+			import comp.AddBattleEvent;
+			import comp.Battle;
+			import comp.ChatWindow;
+			import comp.ErepublicDataProvider;
+			import comp.FloatBattle;
+			import comp.SettingsVars;
+			import comp.SettingsWindow;
+			
+			import events.ChangeSizeEvent;
+			import events.ChatUsersEvent;
+			import events.ErepublikDataProviderEvent;
+			import events.NotReadedMessageEvent;
+			import events.SaveSettingsEvent;
+			
+			import flash.system.Capabilities;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.DragSource;
+			import mx.core.UIComponent;
+			import mx.events.DragEvent;
+			import mx.events.MoveEvent;
+			import mx.managers.DragManager;
+			import mx.utils.ObjectUtil;
+			
+			import stratus.StratusConnectedEvent;
+			import stratus.StratusConnection;
+			include "update.as";
+			
+			private const battleHeight:int=132;
+			private const battleWidth:int=180;
+			
+			private var sv:SettingsVars;
+			private var fileName:String='BattleMonitor\\config.obj';
+			private var file:File;
+			private var fileStream:FileStream;
+			private var flBattle:FloatBattle;
+			private var settWindow:SettingsWindow;
+			private var chatWindow:ChatWindow;
+			private var bm_data:ArrayCollection;
+			private var wysokoscOknaGlownego:int;
+			
+			private var edp:ErepublicDataProvider;
+
+
+			[Embed(source='img/websearch24.png')]
+			public var websearch24:Class
+			
+			[Bindable]
+			[Embed(source='img/web24.png')]
+			public var web24:Class
+			
+			[Bindable]
+			[Embed(source='img/find24.png')]
+			public var find24:Class
+			
+			[Bindable]
+			[Embed(source='img/configure24.png')]
+			public var configure24:Class
+			
+			[Bindable]
+			[Embed(source='img/chat22.png')]
+			public var chat22:Class
+			
+			[Bindable]
+			[Embed(source='img/chat22bw.png')]
+			public var chat22bw:Class
+			
+			[Bindable]
+			[Embed(source='img/new_message.png')] 
+			private var new_message:Class; 
+			
+			private function closeAll():void
+			{
+				if (this.flBattle!=null && !this.flBattle.closed) this.flBattle.close();
+				if (this.settWindow!=null && !this.settWindow.closed) this.settWindow.close();
+				if (this.chatWindow!=null && !this.chatWindow.closed) this.chatWindow.close();
+				save();
+				
+			}
+			private function init():void
+			{		
+				trace(NativeApplication.nativeApplication.runtimeVersion);
+
+				initVairables();
+
+				read();
+				checkUpdate();
+		
+				
+			}
+			private function initVairables():void
+			{
+				this.sv = new SettingsVars(false,false,'Poland','http://localhost/battle-stats.php','anonym'+Math.round(Math.random()*1000),'','',Capabilities.screenResolutionY-100,Capabilities.screenResolutionY-100,60,0);
+			    this.edp = new ErepublicDataProvider();
+
+				this.wysokoscOknaGlownego=40;
+
+			}
+			
+			private function read():void
+			{
+				
+				var _i:int;
+
+				
+				file = File.documentsDirectory.resolvePath(fileName);
+
+				if(file.exists)
+				{
+					fileStream = new FileStream();
+					fileStream.open(file, FileMode.READ);
+
+					try{
+						bm_data = fileStream.readObject() as ArrayCollection;
+						this.sv=bm_data[0];
+						
+						this.edp.changeData(this.sv.email, this.sv.pass, this.sv.bsurl, this.sv.use_xampp);
+						this.BattleIdNS.value=sv.ns_battle_id;
+					 	this.nativeWindow.x=sv.main_window_x;
+					 	this.nativeWindow.y=sv.main_window_y;
+						if(sv.chat_autostart)
+						{
+							ChatChb.selected=true;
+							ChatChb.label = 'Connecting...';
+							this.ChatImg.source = chat22;
+							this.ChatImg.buttonMode = true;
+							openChat(false);
+	
+						}
+
+						for (_i=1;_i<bm_data.length;_i++)
+						{
+							var myBattle:Object = bm_data[_i];
+							addBattle(myBattle.bid as int,myBattle.ref as int);
+							
+						}
+					}catch(e:Error)
+					{
+						trace('reading error:'+e.toString());
+					}
+					
+					
+					fileStream.close();
+				}
+				
+				
+			}
+			private function save():void
+			{
+				var _i:int;
+				
+				bm_data = new ArrayCollection();
+				this.sv.main_window_x = this.nativeWindow.x;
+				this.sv.main_window_y = this.nativeWindow.y;
+				this.sv.ns_battle_id = this.BattleIdNS.value;
+				bm_data.addItem(this.sv);
+				
+				this.edp.changeData(this.sv.email, this.sv.pass, this.sv.bsurl, this.sv.use_xampp);
+
+
+
+			 	trace('zapisuje');
+				for (_i=0;_i<this.btlList.numChildren;_i++)
+				{
+					var bt:Battle =	btlList.getChildAt(_i) as Battle;
+					
+					var myBattle:Object = new Object();
+					
+		     		myBattle.bid=bt.getBattleID();
+			 		myBattle.ref=bt.getOdIluOdliczacOdswierzenia();
+				//	myBattle.dominacja_odwrotna=bt.getDominacja_odwrotna();
+
+					bm_data.addItem(myBattle);
+				}
+				
+
+				file = File.documentsDirectory.resolvePath(fileName);
+				fileStream = new FileStream();
+				fileStream.open(file, FileMode.WRITE);
+				fileStream.writeObject(bm_data);
+				fileStream.close();
+			}
+
+			protected function addBattle(bID:int,batRef:int):void
+			{
+				var _i:int;
+				var _czy_na_liscie:Boolean=false;
+				for (_i=0;_i<this.btlList.numChildren;_i++)
+				{
+					if(Battle(btlList.getChildAt(_i)).getBattleID()==bID)
+					{
+						_czy_na_liscie=true;
+						break;
+					}
+				}
+				
+				if(!_czy_na_liscie)
+				{
+					var _loc_1:Battle = new Battle(bID,batRef,this.battleWidth,this.battleHeight,this.sv);
+					_loc_1.addEventListener(Event.CLOSE, this.killBattle);
+					_loc_1.addEventListener(ChangeSizeEvent.CHANGE_SIZE_EVENT,changeSize);
+					_loc_1.addEventListener(MouseEvent.MOUSE_MOVE,doMouseMove);
+					this.btlList.addChild(_loc_1);
+
+
+					aktualizujWyskokoscOknaGlownego(this.battleHeight);
+				}
+				else trace('juz na liscie');
+
+
+			}// end function
+			
+			protected function addBattleFromList(event:AddBattleEvent):void
+			{
+				addBattle(int(event.wybraneID),this.sv.default_refresh_rate);
+			}// end function
+			
+			protected function activeBattlesClosing(event:Event):void
+			{
+				this.sv.active_battles_x=this.flBattle.nativeWindow.x;
+				this.sv.active_battles_y=this.flBattle.nativeWindow.y;
+
+			}
+			
+			protected function saveSettings(event:SaveSettingsEvent):void
+			{
+				this.sv=event.sv;
+				trace("st"+ObjectUtil.toString(event.sv));
+				
+				aktualizujWyskokoscOknaGlownego(0);
+
+				if (!(!this.chatWindow || this.chatWindow.closed))this.chatWindow.change_nick(this.sv.nick);
+				
+				for (var _i:int=0;_i<this.btlList.numChildren;_i++)
+				{
+					Battle(btlList.getChildAt(_i)).setBSUrl(this.sv.bsurl);
+					Battle(btlList.getChildAt(_i)).setUserID(this.sv.userID);
+					Battle(btlList.getChildAt(_i)).setCzyServer(this.sv.use_xampp);
+					Battle(btlList.getChildAt(_i)).setEmail(this.sv.email);
+					Battle(btlList.getChildAt(_i)).setPass(this.sv.pass);
+
+				}
+			
+				save();
+				
+			}// end function
+
+			protected function killBattle(param1:Event):void
+			{
+				
+				var _i:int,y:int=0;
+				this.btlList.removeChild(DisplayObject(param1.currentTarget));
+				
+
+				for (_i=0;_i<this.btlList.numChildren;_i++)
+				{
+					
+					btlList.getChildAt(_i).y=y;
+					y+=btlList.getChildAt(_i).height;
+					
+				}
+				
+			
+				
+				aktualizujWyskokoscOknaGlownego(-(Battle(param1.currentTarget)).height);
+				
+			}
+			
+			
+			private function aktualizujWyskokoscOknaGlownego(zmiana:int):void
+			{
+				this.wysokoscOknaGlownego+=zmiana;
+
+				if(this.wysokoscOknaGlownego>this.sv.main_window_max_height)
+				{
+					this.height=this.sv.main_window_max_height;
+					this.width=197;
+				}
+				else
+				{
+					this.height=this.wysokoscOknaGlownego;
+					this.width=180;
+				}
+				this.btlList.height=this.height-40;
+				this.AlwaysOnTopChb.y=this.height-19;
+				this.ChatChb.y=this.height-19;
+				this.ChatImg.y=this.height-19;
+				this.not_readed_msg_img.y=this.height-19;
+			}
+			
+			protected function changeSize(param1:ChangeSizeEvent):void
+			{
+				aktualizujWyskokoscOknaGlownego(param1.heightChanged);
+
+			}
+
+
+			protected function BattleIdNS_keyDownHandler(event:KeyboardEvent):void
+			{
+
+					if(event.charCode==13)addBattle(this.BattleIdNS.value,this.sv.default_refresh_rate);
+	
+			}
+
+			
+			private function openSettings() : void
+			{
+				
+				if (!this.settWindow || this.settWindow.closed)
+				{
+					this.settWindow = new SettingsWindow(this.sv);
+					this.settWindow.alwaysInFront = this.AlwaysOnTopChb.selected;
+					this.settWindow.addEventListener(SaveSettingsEvent.SAVE_SETTINGS_EVENT,saveSettings);
+					
+					
+					this.settWindow.open(true);
+					this.settWindow.nativeWindow.x=200;
+					this.settWindow.nativeWindow.y=200;
+					
+				}	
+				else
+				{
+					this.settWindow.close();
+				}// end else if
+				return;
+			}// end function
+			
+			public function openBL() : void
+			{
+				if (!this.flBattle || this.flBattle.closed)
+				{
+				/*	if(this.sv.use_xampp)this.flBattle = new FloatBattle(this.sv.bsurl);
+					else this.flBattle = new FloatBattle('',this.sv.email,this.sv.pass);*/
+					
+					this.flBattle = new FloatBattle(this.edp);
+					
+					this.flBattle.width = 170;
+					this.flBattle.height = 1;
+
+					this.flBattle.maxHeight=this.sv.active_battles_max_height;
+					this.flBattle.isPopUp = true;
+					this.flBattle.type = NativeWindowType.UTILITY;
+				 	this.flBattle.resizable = false;
+					this.flBattle.alwaysInFront = this.AlwaysOnTopChb.selected;
+					this.flBattle.addEventListener(AddBattleEvent.ADD_BATTLE_EVENT,addBattleFromList);
+					this.flBattle.addEventListener(Event.CLOSING,activeBattlesClosing);
+					
+					this.flBattle.open(true);
+					this.flBattle.nativeWindow.x=this.sv.active_battles_x;
+					this.flBattle.nativeWindow.y=this.sv.active_battles_y;
+				}
+				else
+				{
+					this.flBattle.close();
+				}// end else if
+				return;
+			}// end function
+			
+			private function openChat(visible:Boolean=true) : void
+			{
+				
+				if (!this.chatWindow || this.chatWindow.closed)
+				{
+					this.chatWindow = new ChatWindow(this.sv.nick);
+					this.chatWindow.alwaysInFront = this.AlwaysOnTopChb.selected;
+					this.chatWindow.visible = visible;
+					this.chatWindow.open(visible);
+					this.chatWindow.nativeWindow.x=200;
+					this.chatWindow.nativeWindow.y=200;
+					this.chatWindow.addEventListener(Event.CLOSE,chat_close);
+					this.chatWindow.addEventListener(ChatUsersEvent.CHAT_USERS_EVENT,change_nb_of_chat_users);
+					this.chatWindow.addEventListener(NotReadedMessageEvent.NOT_READED_MESSAGE_EVENT, change_new_readed);
+				}	
+				else
+				{
+					this.chatWindow.close();
+				}// end else if
+				return;
+			}// end function
+
+			
+			private function change_new_readed(e:NotReadedMessageEvent):void
+			{
+				if(e.n_r_m_count == 0)
+				{
+					not_readed_msg_img.visible = false;
+				}
+				else not_readed_msg_img.visible = true;
+			}
+			
+			private function chat_close(e:Event):void
+			{
+				ChatChb.label = 'Chat is off';
+				ChatChb.selected = false;
+				this.ChatImg.source = chat22bw;
+				this.ChatImg.buttonMode = false;
+				this.chatWindow.removeEventListener(ChatUsersEvent.CHAT_USERS_EVENT,change_nb_of_chat_users);
+				this.not_readed_msg_img.visible = false;
+			}
+			
+			private function change_nb_of_chat_users(e:ChatUsersEvent):void
+			{
+				ChatChb.label = 'Chating: '+e.numer_of_users;
+			}
+			
+			protected function FindBattesImg_mouseOverHandler(event:MouseEvent):void
+			{
+				FindBattesImg.width=22;
+				FindBattesImg.height=22;
+			}
+
+
+			protected function FindBattesImg_mouseOutHandler(event:MouseEvent):void
+			{
+				FindBattesImg.width=20;
+				FindBattesImg.height=20;
+			}
+			
+			protected function AddCountryBattesImg_mouseOverHandler(event:MouseEvent):void
+			{
+
+				AddCountryBattesImg.width=21;
+				AddCountryBattesImg.height=21;
+				
+			}
+			
+			
+			protected function AddCountryBattesImg_mouseOutHandler(event:MouseEvent):void
+			{
+
+				AddCountryBattesImg.width=19;
+				AddCountryBattesImg.height=19;
+			}
+			
+			private function addCountryBattles():void
+			{
+				AddCountryBattesImg.source=websearch24;
+				
+				
+				this.edp.addEventListener(ErepublikDataProviderEvent.EDP_EVENT, getActiveBattles2Complete);
+				this.edp.getActiveBattles();
+
+
+				return;
+			}
+
+			
+			private function  getActiveBattles2Complete(param1:ErepublikDataProviderEvent) : void
+			{
+				//trace('region'+param1.currentTarget.data);
+				
+				var battles:Array = new Array();
+				
+				var pattern:RegExp = new RegExp('[<li class="mpp"|<li] id="battle-(.+?)<\/li>','gm');
+				var str:String = param1.data;
+				
+				var result:Array = pattern.exec(str);
+				
+				while (result != null) {
+					trace (result.index, "\t", result[1]);
+					
+					var pattern2:RegExp = new RegExp('(.+?)">');
+					var bid:Array = pattern2.exec(result[1]);
+					
+					
+					pattern2 = /<span>(.+?)<\/span>/;
+					var region:Array = pattern2.exec(result[1]);
+					
+					
+					pattern2 = /resistance_sign/;
+					var rw:Boolean = pattern2.test(result[1]);
+					
+					pattern2 = /alt="(.+?)" title="/g;
+					var att:Array = pattern2.exec(result[1]);
+					
+					
+					
+					pattern2 = /.png" title="(.+?)"/g;
+					var def:Array =  pattern2.exec(result[1]);
+					while (att[1]==def[1]){
+						def =  pattern2.exec(result[1]);
+					}
+
+
+					battles.push({bid:bid[1],region:region[1],att:att[1],def:def[1],rws:rw});
+					
+					result = pattern.exec(str);
+				}
+
+				
+				for (var i:int = 0; i < battles.length; ++i) 
+				{ 
+
+					if(battles[i].att==this.sv.country_name||battles[i].def==this.sv.country_name)
+						addBattle(battles[i].bid,this.sv.default_refresh_rate);
+				}
+				AddCountryBattesImg.source=web24;
+				
+			}
+			
+
+			
+			private function doDragEnter(e:DragEvent):void {            
+				DragManager.acceptDragDrop( UIComponent(e.currentTarget) );
+			}
+			
+			private function doDragDrop(e:DragEvent):void {            
+				(e.currentTarget as VBox).addChildAt( e.dragInitiator as UIComponent , getNewIndex(e.localY+this.btlList.verticalScrollPosition+20,(e.currentTarget as VBox) ) );            
+
+			}        
+			
+			private function doMouseMove(e:MouseEvent):void {
+				var di:UIComponent = e.currentTarget as UIComponent;
+				
+				var ds:DragSource = new DragSource();
+				var dragIndex:int = ((e.currentTarget as UIComponent).parent as VBox).getChildIndex(e.currentTarget as UIComponent);
+				ds.addData(dragIndex,'index');
+				
+
+				var imageProxy:Image = new Image();
+				imageProxy.source = new Bitmap(getUIComponentBitmapData(di));
+				
+				DragManager.doDrag(di, ds, e, imageProxy, 0, 0, 0.50);            
+			}
+			
+			public function getUIComponentBitmapData( target : UIComponent ) : BitmapData
+			{ 
+				var bd:BitmapData = new BitmapData( target.width, target.height );
+				var m:Matrix = new Matrix();
+				bd.draw( target, m );
+				return bd;  
+			}
+			
+			private function getNewIndex(y:int,vb:VBox):int {
+				
+			 	for (var i:int=0;i<vb.getChildren().length;i++) {
+					var currChild:UIComponent = vb.getChildAt(i) as UIComponent;
+					
+					if ( y>currChild.y && y<(currChild.y+currChild.height) ) {            
+						break;
+					}
+				}            
+				return (i>=0) ? i:0;            
+			}
+			
+
+			protected function ConfigureImg_mouseOverHandler(event:MouseEvent):void
+			{
+				ConfigureImg.width=22;
+				ConfigureImg.height=22;
+			}
+			
+			protected function ConfigureImg_mouseOutHandler(event:MouseEvent):void
+			{
+				ConfigureImg.width=20;
+				ConfigureImg.height=20;
+			}
+			
+			protected function AlwaysOnTopChb_changeHandler(event:Event):void
+			{
+				this.stage.nativeWindow.alwaysInFront=AlwaysOnTopChb.selected;
+				
+			}
+			
+			protected function ChatChb_changeHandler(event:Event=null):void
+			{
+				if(ChatChb.selected)
+				{
+					ChatChb.label = 'Connecting...';
+					this.ChatImg.source = chat22;
+					this.ChatImg.buttonMode = true;
+					openChat();
+
+				}
+				else 
+				{
+					ChatChb.label = 'Chat is off';
+					this.ChatImg.source = chat22bw;
+					this.ChatImg.buttonMode = false;
+					if(this.chatWindow)this.chatWindow.close();
+				}
+				
+			}
+			
+
+			
+			protected function ChatImg_clickHandler(event:MouseEvent):void
+			{
+				if(this.ChatImg.buttonMode)
+				{
+					if (!this.chatWindow || this.chatWindow.closed)openChat();
+					else
+						this.chatWindow.visible = !this.chatWindow.visible;
+				}
+				
+				this.not_readed_msg_img.visible = false;
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+
+
+	</fx:Declarations>
+
+	<mx:VBox  dragEnter="doDragEnter(event)" dragDrop="doDragDrop(event)" id="btlList" x="0" width="100%" height="0" top="20" verticalScrollPolicy="on" styleName="containerVBox" horizontalScrollPolicy="off">
+
+	</mx:VBox>
+	<s:NumericStepper textAlign="right" x="1" y="0" fontSize="11" height="20" toolTip="Battle ID" value="99999" width="66" lineThrough="false" id="BattleIdNS" keyDown="BattleIdNS_keyDownHandler(event)" stepSize="1" maximum="999999"/>
+	<s:Button x="69" y="0" label="Add" fontSize="11" height="20" click="addBattle(this.BattleIdNS.value,this.sv.default_refresh_rate)" width="42" buttonMode="true" id="addBattleBtn"/>
+	<s:CheckBox id="AlwaysOnTopChb" x="1" y="21" label="AOT" toolTip="Always on top"
+				change="AlwaysOnTopChb_changeHandler(event)"
+				selected="true"/>
+	<s:CheckBox id="ChatChb" x="50" y="21" label="Chat is off" change="ChatChb_changeHandler(event)"  selected="false"/>
+	<mx:Image id="ChatImg" y="20" right="0" width="20" height="20" autoLoad="true" buttonMode="false"
+			  click="ChatImg_clickHandler(event)" scaleContent="true" source="{chat22bw}"/>
+	<mx:Image id="not_readed_msg_img" y="28" right="23"  height="14" autoLoad="true" buttonMode="true"
+			  click="ChatImg_clickHandler(event)" scaleContent="true" visible="false" source="{new_message}"/>
+
+	<mx:Image x="160" y="0"	width="20" height="20" toolTip="Show active battles" source="{find24}" buttonMode="true" scaleContent="true" autoLoad="true" id="FindBattesImg" mouseOver="FindBattesImg_mouseOverHandler(event)" mouseOut="FindBattesImg_mouseOutHandler(event)" click="openBL()"/>
+	<mx:Image x="137" y="0" width="20" height="20" toolTip="Add my country battles" source="{web24}" scaleContent="true" buttonMode="true" autoLoad="true" id="AddCountryBattesImg" mouseOver="AddCountryBattesImg_mouseOverHandler(event)" mouseOut="AddCountryBattesImg_mouseOutHandler(event)" click="addCountryBattles()"/>
+	<mx:Image id="ConfigureImg" x="114" y="0" width="20" height="20" autoLoad="true"
+			  buttonMode="true" click="openSettings()"
+			  mouseOut="ConfigureImg_mouseOutHandler(event)"
+			  mouseOver="ConfigureImg_mouseOverHandler(event)" scaleContent="true"
+			  source="{configure24}" toolTip="Settings"/>
+	
+</s:WindowedApplication>

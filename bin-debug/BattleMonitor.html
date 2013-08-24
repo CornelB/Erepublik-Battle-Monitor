@@ -1,0 +1,22 @@
+<html>
+<head>
+<title>Source Viewer Sample</title>
+<script type="text/javascript" src="AIRSourceViewer.js"></script>
+<script type="text/javascript">
+function showSources(){
+alert('ok');
+var viewer = air.SourceViewer.getDefault(); 
+var configObj = {}; 
+configObj.modal = true; 
+configObj.initialPosition = [40, 60]; 
+viewer.viewSource(configObj);
+}
+</script>
+</head>
+<body>
+<p>Click to view the source files.</p>
+<input type="button"
+onclick="showSources()"
+value="View Source" />
+</body>
+</html>
