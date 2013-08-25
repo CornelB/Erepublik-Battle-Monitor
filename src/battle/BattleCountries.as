@@ -182,33 +182,33 @@ package battle
 				if(oData[i]["side_country_id"] == this.bv.attackerID){
 					this.bv.attOrders.push(oData[i]);
 				} else {
-					bv.defOrders.push(oData[i]);
+					this.bv.defOrders.push(oData[i]);
 				}
 			}
 			
-			if(bv.attOrders.length == 0){
+			if(this.bv.attOrders.length == 0){
 				this.hideOrders(true, bv);
 			} else {
 				
-				if(bv.attOrders[bv.attOrdersCurr] != undefined){
-					this.showOrder(bv.attOrders[bv.attOrdersCurr], true);
+				if(this.bv.attOrders[this.bv.attOrdersCurr] != undefined){
+					this.showOrder(this.bv.attOrders[this.bv.attOrdersCurr], true);
 				} else {
-					bv.attOrdersCurr = 0;
-					this.showOrder(bv.attOrders[0], true);
+					this.bv.attOrdersCurr = 0;
+					this.showOrder(this.bv.attOrders[0], true);
 				}
 				this.lblAttackBO.visible = true;
 				this.lblAttackBO.text = (this.bv.attOrdersCurr + 1) + "/" + this.bv.attOrders.length;
 			}
 			
-			if(bv.defOrders.length == 0){
-				this.hideOrders(false, bv);
+			if(this.bv.defOrders.length == 0){
+				this.hideOrders(false, this.bv);
 			} else {
 				
-				if(bv.defOrders[bv.defOrdersCurr] != undefined){
-					this.showOrder(bv.defOrders[bv.defOrdersCurr], false);
+				if(this.bv.defOrders[bv.defOrdersCurr] != undefined){
+					this.showOrder(this.bv.defOrders[this.bv.defOrdersCurr], false);
 				} else {
-					bv.defOrdersCurr = 0;
-					this.showOrder(bv.defOrders[0], false);
+					this.bv.defOrdersCurr = 0;
+					this.showOrder(this.bv.defOrders[0], false);
 				}
 				this.lblDefendBO.visible = true;
 				this.lblDefendBO.text = (this.bv.defOrdersCurr + 1) + "/" + this.bv.defOrders.length;
@@ -234,9 +234,11 @@ package battle
 				} else {
 					this.lblAttack.setStyle("color","0xdd3000");
 				}
-				if(bv.attOrders.length > 1) {
-					this.lblAttack.addEventListener(MouseEvent.CLICK,nextAttacker);
-					this.lblAttack.buttonMode = true;
+				if(this.bv.attOrders.length > 1) {
+					if(!this.lblAttack.hasEventListener(MouseEvent.CLICK)){
+						this.lblAttack.addEventListener(MouseEvent.CLICK,nextAttacker);
+						this.lblAttack.buttonMode = true;
+					}
 				}
 			} else {
 				this.lblDefend.text = text;
@@ -251,9 +253,11 @@ package battle
 				} else {
 					this.lblDefend.setStyle("color","0xdd3000");
 				}
-				if(bv.defOrders.length > 1) {
-					this.lblDefend.addEventListener(MouseEvent.CLICK,nextDeffender);
-					this.lblDefend.buttonMode = true;
+				if(this.bv.defOrders.length > 1) {
+					if(!this.lblDefend.hasEventListener(MouseEvent.CLICK)){
+						this.lblDefend.addEventListener(MouseEvent.CLICK,nextDeffender);
+						this.lblDefend.buttonMode = true;
+					}
 				}
 			}
 			
@@ -270,12 +274,14 @@ package battle
 		
 		public function hideOrders(bIsAttacker:Boolean, battleVars:BattleVars):void{
 			if(bIsAttacker){
+				trace("ha");
 				this.lblAttackBO.visible = false;
 				this.lblAttack.text = sf.skroc(battleVars.attacker,11);
 				this.lblAttack.setStyle("color","0x000000");
 				this.lblAttack.removeEventListener(MouseEvent.CLICK,nextAttacker);
 				this.lblAttack.buttonMode = false;
 			} else {
+				trace("hd");
 				this.lblDefendBO.visible = false;
 				this.lblDefend.text = sf.skroc(battleVars.defender,11);
 				this.lblDefend.setStyle("color","0x000000");
