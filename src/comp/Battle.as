@@ -480,7 +480,7 @@ package comp
 				{
 					battleLogAC.addItem(jsonData["division"][battleVars.attackerID]);
 					battleLogAC.addItem(jsonData["division"][battleVars.defenderID]);
-					this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
+					
 				}
 				else
 				{
@@ -583,8 +583,8 @@ package comp
 				//domination update
 				battleDetails.aktualizujDominacje(battleVars);
 				
-				
-				
+				//battle orders
+				this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
 				
 				this.battleVars.attackerDominOld=this.battleVars.attackerDomin;
 				this.battleVars.defenderDominOld=this.battleVars.defenderDomin;

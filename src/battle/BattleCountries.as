@@ -56,6 +56,9 @@ package battle
 		
 		public var lblAttackTot:Label;
 		public var lblDefendTot:Label;
+
+		public var lblAttackBO:Label;
+		public var lblDefendBO:Label;
 		
 		public var lblTime:Label;
 		private var sf:ShareFunctions=new ShareFunctions();
@@ -91,9 +94,22 @@ package battle
 			lblDefend.y=18;
 			this.addChildAt(lblDefend,1);
 			
+			lblAttackBO = new Label();
+			lblAttackBO.text='1/1';
+			lblAttackBO.x=27;
+			lblAttackBO.y=4;
+			lblAttackBO.visible=false;
+			this.addChildAt(lblAttackBO,1);
+			
+			lblDefendBO = new Label();
+			lblDefendBO.text='1/1';
+			lblDefendBO.right=27;
+			lblDefendBO.y=4;
+			lblDefendBO.visible=false;
+			this.addChildAt(lblDefendBO,1);
 
 			clockImage = new Image();
-			clockImage.horizontalCenter=4;
+			clockImage.horizontalCenter=0;
 			clockImage.y=0;
 			clockImage.source=clockImageClass;
 			this.addChildAt(clockImage,0);
@@ -102,7 +118,7 @@ package battle
 			lblTime.text='0:00:00';
 			lblTime.toolTip="Show/Hide Battle Heros";
 		    lblTime.setStyle("color","0xffffff");
-			lblTime.horizontalCenter=11;
+			lblTime.horizontalCenter=9;
 			lblTime.y=4;
 			lblTime.name='lblTime';
 			this.addChildAt(lblTime,1);
@@ -173,23 +189,29 @@ package battle
 			if(bv.attOrders.length == 0){
 				this.hideOrders(true, bv);
 			} else {
+				
 				if(bv.attOrders[bv.attOrdersCurr] != undefined){
 					this.showOrder(bv.attOrders[bv.attOrdersCurr], true);
 				} else {
 					bv.attOrdersCurr = 0;
 					this.showOrder(bv.attOrders[0], true);
 				}
+				this.lblAttackBO.visible = true;
+				this.lblAttackBO.text = (this.bv.attOrdersCurr + 1) + "/" + this.bv.attOrders.length;
 			}
 			
 			if(bv.defOrders.length == 0){
 				this.hideOrders(false, bv);
 			} else {
+				
 				if(bv.defOrders[bv.defOrdersCurr] != undefined){
 					this.showOrder(bv.defOrders[bv.defOrdersCurr], false);
 				} else {
 					bv.defOrdersCurr = 0;
 					this.showOrder(bv.defOrders[0], false);
 				}
+				this.lblDefendBO.visible = true;
+				this.lblDefendBO.text = (this.bv.defOrdersCurr + 1) + "/" + this.bv.defOrders.length;
 			}
 		}
 		
@@ -197,12 +219,18 @@ package battle
 			var text:String =  oData["threshold"] + "% " + oData["reward"] + "/" + int(oData["budget"]);
 			var pc:Number;
 			if(bIsAttacker){
+				
+				
 				this.lblAttack.text = text;
 				this.lblAttack.toolTip="threshold% reward/budget";
 				pc = Math.round((100-bv.defenderPercent[int(oData["division"])-1])*100)/100;
 
 				if(pc < int(oData["threshold"])){
-					this.lblAttack.setStyle("color","0x005500");
+					if(int(oData["reward"]) > int(oData["budget"])){
+						this.lblAttack.setStyle("color","0x330066");
+					} else {
+						this.lblAttack.setStyle("color","0x005500");
+					}
 				} else {
 					this.lblAttack.setStyle("color","0xdd3000");
 				}
@@ -215,7 +243,11 @@ package battle
 				this.lblDefend.toolTip="threshold% reward/budget";
 				pc = Math.round((bv.defenderPercent[int(oData["division"])-1])*100)/100;
 				if(pc < int(oData["threshold"])){
-					this.lblDefend.setStyle("color","0x005500");
+					if(int(oData["reward"]) > int(oData["budget"])){
+						this.lblDefend.setStyle("color","0x330066");
+					} else {
+						this.lblDefend.setStyle("color","0x005500");
+					}
 				} else {
 					this.lblDefend.setStyle("color","0xdd3000");
 				}
@@ -238,11 +270,13 @@ package battle
 		
 		public function hideOrders(bIsAttacker:Boolean, battleVars:BattleVars):void{
 			if(bIsAttacker){
+				this.lblAttackBO.visible = false;
 				this.lblAttack.text = sf.skroc(battleVars.attacker,11);
 				this.lblAttack.setStyle("color","0x000000");
 				this.lblAttack.removeEventListener(MouseEvent.CLICK,nextAttacker);
 				this.lblAttack.buttonMode = false;
 			} else {
+				this.lblDefendBO.visible = false;
 				this.lblDefend.text = sf.skroc(battleVars.defender,11);
 				this.lblDefend.setStyle("color","0x000000");
 				this.lblDefend.removeEventListener(MouseEvent.CLICK,nextDeffender);

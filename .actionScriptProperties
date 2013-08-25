@@ -35,11 +35,11 @@
     <buildTarget buildTargetName="default">
       <airSettings airCertificatePath="D:/programy/programowanie/pass.p12" airTimestamp="true" anePathSet="true" version="1">
         <airExcludes>
-          <pathEntry path="img/icon_dn.png"/>
-          <pathEntry path="img/small_clock.png"/>
           <pathEntry path="img/icon_st.png"/>
           <pathEntry path="img/clock - Kopia.png"/>
           <pathEntry path="img/icon_up.png"/>
+          <pathEntry path="img/icon_dn.png"/>
+          <pathEntry path="img/small_clock.png"/>
         </airExcludes>
         <anePaths/>
       </airSettings>
@@ -47,4 +47,3 @@
     </buildTarget>
   </buildTargets>
 </actionScriptProperties>
-
