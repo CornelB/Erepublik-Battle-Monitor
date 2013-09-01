@@ -280,16 +280,7 @@ package comp
 				readApiError();
 			}
 			updateBattleData();
-	/*		var xml:XML = new XML(param1.currentTarget.data);
-			
-			this.battleVars.attacker =  xml.attacker.name;
-			this.battleVars.defender =  xml.defender.name;
-			this.battleVars.attackerID =  xml.attacker.id;
-			this.battleVars.defenderID =  xml.defender.id;
-			this.battleVars.region= xml.region.name;
-			this.battleVars.isResistance= xml['is-resistance'];
-			updateBattleData();*/
-			
+
 			if(this.battleCountries.defenderImg.hasEventListener(MouseEvent.CLICK))
 			{
 				this.battleCountries.defenderImg.removeEventListener(MouseEvent.CLICK,switchDomination);
