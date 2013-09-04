@@ -125,7 +125,7 @@ package battle
 			
 			showHideHerosImage = new Image();
 			showHideHerosImage.horizontalCenter=6;
-			showHideHerosImage.y=20;
+			showHideHerosImage.y=34;
 			showHideHerosImage.toolTip="Show/Hide Battle Heros";
 			showHideHerosImage.source=this.showHerosImageClass;
 			this.addChildAt(showHideHerosImage,0);
@@ -234,7 +234,7 @@ package battle
 				} else {
 					this.lblAttack.setStyle("color","0xdd3000");
 				}
-				if(this.bv.attOrders.length > 1) {
+				if(this.bv.attOrders.length > 0) {
 					if(!this.lblAttack.hasEventListener(MouseEvent.CLICK)){
 						this.lblAttack.addEventListener(MouseEvent.CLICK,nextAttacker);
 						this.lblAttack.buttonMode = true;
@@ -253,7 +253,7 @@ package battle
 				} else {
 					this.lblDefend.setStyle("color","0xdd3000");
 				}
-				if(this.bv.defOrders.length > 1) {
+				if(this.bv.defOrders.length > 0) {
 					if(!this.lblDefend.hasEventListener(MouseEvent.CLICK)){
 						this.lblDefend.addEventListener(MouseEvent.CLICK,nextDeffender);
 						this.lblDefend.buttonMode = true;
