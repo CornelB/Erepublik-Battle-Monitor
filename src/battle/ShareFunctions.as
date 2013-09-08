@@ -7,6 +7,10 @@ package battle
 		}
 		public function skroc(s:String, doIlu:int):String
 		{
+			if(!s) {
+				return '';
+			}
+			
 			if(s.length<=doIlu){
 				return s
 				
@@ -20,6 +24,10 @@ package battle
 		}
 		public function spaceChange(s:String):String
 		{
+			if(!s) {
+				return '';
+			}
+			
 			if(s.search(' ')!=-1)return (spaceChange(s.replace(' ','-')))
 			else return s;
 			

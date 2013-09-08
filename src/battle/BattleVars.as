@@ -11,7 +11,7 @@ package battle
 		public var defenderID:int;
 		public var userID:int;
 		public var region:String;
-		public var isResistance:String;
+		public var isResistance:Boolean;
 		public var bsurl:String;
 		public var email:String;
 		public var pass:String;

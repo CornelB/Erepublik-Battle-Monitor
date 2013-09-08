@@ -163,12 +163,13 @@ package battle
 		
 		public function updateData(battleVars:BattleVars):void
 		{
-
-			this.lblAttack.text = sf.skroc(battleVars.attacker,11);
-			this.lblDefend.text = sf.skroc(battleVars.defender,11);
-			
-			this.attackerImg.source = "flags/" + (sf.spaceChange(battleVars.attacker)) + ".gif";
-			this.defenderImg.source = "flags/" + (sf.spaceChange(battleVars.defender)) + ".gif";
+			if(battleVars.attacker!='' && battleVars.defender!=''){
+				this.lblAttack.text = sf.skroc(battleVars.attacker,11);
+				this.lblDefend.text = sf.skroc(battleVars.defender,11);
+				
+				this.attackerImg.source = "flags/" + (sf.spaceChange(battleVars.attacker)) + ".gif";
+				this.defenderImg.source = "flags/" + (sf.spaceChange(battleVars.defender)) + ".gif";
+			}
 		
 
 		}
@@ -216,7 +217,7 @@ package battle
 		}
 		
 		protected function showOrder(oData:Object, bIsAttacker:Boolean):void{
-			var text:String =  oData["threshold"] + "% " + oData["reward"] + "/" + int(oData["budget"]);
+			var text:String =  oData["threshold"] + " " + oData["reward"] + "/" + int(oData["budget"]);
 			var pc:Number;
 			if(bIsAttacker){
 				
@@ -274,14 +275,12 @@ package battle
 		
 		public function hideOrders(bIsAttacker:Boolean, battleVars:BattleVars):void{
 			if(bIsAttacker){
-				trace("ha");
 				this.lblAttackBO.visible = false;
 				this.lblAttack.text = sf.skroc(battleVars.attacker,11);
 				this.lblAttack.setStyle("color","0x000000");
 				this.lblAttack.removeEventListener(MouseEvent.CLICK,nextAttacker);
 				this.lblAttack.buttonMode = false;
 			} else {
-				trace("hd");
 				this.lblDefendBO.visible = false;
 				this.lblDefend.text = sf.skroc(battleVars.defender,11);
 				this.lblDefend.setStyle("color","0x000000");

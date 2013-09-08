@@ -20,9 +20,9 @@
         <airExclude path="img/ST2.png"/>
         <airExclude path="img/clock - Kopia.png"/>
         <airExclude path="img/icon_dn.png"/>
-        <airExclude path="img/icon_up.png"/>
-        <airExclude path="img/small_clock.png"/>
         <airExclude path="img/clock1.png"/>
+        <airExclude path="img/small_clock.png"/>
+        <airExclude path="img/icon_up.png"/>
         <airExclude path="img/clock2.png"/>
         <airExclude path="img/icon_st.png"/>
       </airExcludes>

@@ -4,9 +4,11 @@ package comp
 	import battle.*;
 	
 	import comp.AnimatedTitleWindow;
+	import comp.ErepublicDataProvider;
 	
 	import events.ChangeRefreshEvent;
 	import events.ChangeSizeEvent;
+	import events.ErepublikDataProviderEvent;
 	import events.ReadApiEvent;
 	
 	import flash.desktop.Clipboard;
@@ -51,6 +53,7 @@ package comp
 		private var battleCountries:BattleCountries;
 		private var battleHeros:BattleHeros;
 		public var sf:ShareFunctions=new ShareFunctions();
+		private var edp:ErepublicDataProvider = new ErepublicDataProvider();
 		
 		private var anTW:AnimatedTitleWindow;
 		
@@ -239,10 +242,14 @@ package comp
 		public function readApi(e:ReadApiEvent = null):void
 		{
 		 	trace(this.battleVars.battleId+': Reading API');
-			var _loc_1:* = new URLLoader();
+			/*var _loc_1:* = new URLLoader();
 			_loc_1.load(new URLRequest("http://api.erpk.org/battle/" + this.battleVars.battleId+'.json?key=ecvgbLriaG' ));
 			_loc_1.addEventListener(Event.COMPLETE, this.readApiComplete);
-			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readApiError);
+			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readApiError);*/
+			this.edp.addEventListener(ErepublikDataProviderEvent.EDP_EVENT, this.readApiComplete);
+			this.edp.getActiveBattles();
+			
+			
 		}// end function
 		
 		private function readApiError(param1:Event=null):void
@@ -255,31 +262,38 @@ package comp
 			t1.start();
 				
 		}
-		
-		
-		
-		
-		private function readApiComplete(param1:Event) : void
+
+		private function readApiComplete(param1:ErepublikDataProviderEvent) : void
 		{
-		//	trace("read API Complete");
+			this.edp.removeEventListener(ErepublikDataProviderEvent.EDP_EVENT, readApiComplete);
+			var battles:Array = this.getBattles(param1);
 			
-			try
-			{
-			var jsonData:Object;
-			jsonData = JSON.parse(''+param1.currentTarget.data);
-			this.battleVars.attacker =  jsonData['attacker']['name'];
-			this.battleVars.defender =  jsonData['defender']['name'];
-			this.battleVars.attackerID =  jsonData['attacker']['id'];
-			this.battleVars.defenderID =  jsonData['defender']['id'];
-			this.battleVars.region= jsonData['region']['name'];
-			this.battleVars.isResistance= jsonData['is_resistance'];
-			this.battleCountries.showMessage("Connected","API connect success","ok");
+			this.battleVars.attacker = '';
+			this.battleVars.defender = '';
+			this.battleVars.region = '';
+			this.battleVars.isResistance= false;
+			this.battleVars.attackerID = 1;
+			this.battleVars.defenderID = 1;
+			
+			for (var i:int = 0; i < battles.length; ++i) 
+			{ 
+				
+				if(battles[i].bid==this.battleVars.battleId){				
+					
+					this.battleVars.attacker = battles[i].att;
+					this.battleVars.defender = battles[i].def;
+					this.battleVars.region = battles[i].region;
+					this.battleVars.isResistance= battles[i].rws;
+					this.battleVars.attackerID = id2country(null, battles[i].att);
+					this.battleVars.defenderID = id2country(null, battles[i].def);
+					
+				}
+					
 			}
-			catch (e:Error)
-			{
-				readApiError();
-			}
+
 			updateBattleData();
+
+			
 
 			if(this.battleCountries.defenderImg.hasEventListener(MouseEvent.CLICK))
 			{
@@ -290,12 +304,54 @@ package comp
 
 		}
 		
+		private function getBattles(param1:ErepublikDataProviderEvent):Array{
+			var battles:Array = new Array();
+			
+			var pattern:RegExp = new RegExp('[<li class="mpp"|<li] id="battle-(.+?)<\/li>','gm');
+			var str:String = param1.data;
+			
+			var result:Array = pattern.exec(str);
+			
+			while (result != null) {
+				//trace (result.index, "\t", result[1]);
+				
+				var pattern2:RegExp = new RegExp('(.+?)">');
+				var bid:Array = pattern2.exec(result[1]);
+				
+				
+				pattern2 = /<span>(.+?)<\/span>/;
+				var region:Array = pattern2.exec(result[1]);
+				
+				
+				pattern2 = /resistance_sign/;
+				var rw:Boolean = pattern2.test(result[1]);
+				
+				pattern2 = /alt="(.+?)" title="/g;
+				var att:Array = pattern2.exec(result[1]);
+				
+				
+				
+				pattern2 = /.png" title="(.+?)"/g;
+				var def:Array =  pattern2.exec(result[1]);
+				while (att[1]==def[1]){
+					def =  pattern2.exec(result[1]);
+				}
+				
+				
+				battles.push({bid:bid[1],region:region[1],att:att[1],def:def[1],rws:rw});
+				
+				result = pattern.exec(str);
+			}
+			
+			return battles;
+		}
+		
 		public function updateBattleData():void
 		{
-			this.battleCountries.updateData(battleVars);
+			this.battleCountries.updateData(this.battleVars);
 		
 			
-			if(this.battleVars.isResistance=='false')this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17)
+			if(!this.battleVars.isResistance)this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17)
 			else this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
 			this.battleHeader.lblBattle.toolTip=this.battleVars.region;
 			this.battleHeader.lblBattle.buttonMode=true;
@@ -415,16 +471,16 @@ package comp
 		
 	public function getRegion():void
 	{
-		//	trace(this.battleVars.battleId+': Reading API');
+
 		var _loc_1:* = new URLLoader();
 		
 		if(this.czy_server)
 		{
-			_loc_1.load(new URLRequest(this.battleVars.bsurl + "?campaigns=1"));
+			//_loc_1.load(new URLRequest(this.battleVars.bsurl + "?campaigns=1"));
 		}
 		else
 		{
-			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/campaigns"));
+			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield/"+this.battleVars.battleId));
 			
 		}
 		_loc_1.addEventListener(Event.COMPLETE, this.readRegionComplete);
@@ -432,22 +488,17 @@ package comp
 	
 	private function readRegionComplete(param1:Event) : void
 	{
-	//	trace('region'+param1.currentTarget.data);
-		
-		var pattern:RegExp = new RegExp('[<li class="mpp"|<li] id="battle-'+this.battleVars.battleId+'">(.+?)<\/li>');
-		
 
+		var pattern:RegExp = new RegExp('<div id="pvp_header">(.+?)<h2>(.+?)<\/h2>','ms');
 		var li:Array = pattern.exec(param1.currentTarget.data);
 		
-		pattern = /<span>(.+?)<\/span>/;
-		var region:Array = pattern.exec(li[1]);
+		this.battleVars.region = li[2];
 		
-		this.battleVars.region = region[1];
+		pattern = new RegExp('isResistance(.+?): (.+?),','ms');
+		li = pattern.exec(param1.currentTarget.data);
 
-		
-		pattern = /resistance_sign/;
 
-		if(pattern.test(li[1]))this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
+		if(li[2] == '1')this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
 		else this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17)
 
 		this.battleHeader.lblBattle.toolTip=this.battleVars.region;
@@ -476,9 +527,8 @@ package comp
 				else
 				{
 					battleVars.region ='';
-					this.battleVars.isResistance = 'false';
-					getRegion();
-
+					this.battleVars.isResistance = false;
+					this.getRegion();
 					
 					for(i = 1; i<200; i++)
 					{
@@ -676,7 +726,7 @@ package comp
 			return;
 		}// end function
 		
-		private function id2country(country_id:int):String
+		private function id2country(country_id:*, country_name:String = ''):*
 		{
 			var countries_arr:Array = new Array();
 			countries_arr[167] = 'Albania';
@@ -750,6 +800,21 @@ package comp
 			countries_arr[29] = 'United Kingdom'; 
 			countries_arr[74] = 'Uruguay'; 
 			countries_arr[28] = 'Venezuela';
+			
+			
+			if(country_name != ''){
+				var id:int=1;
+				for(var i:int=1; i<200; i++){
+					if(countries_arr[i]){
+						if(country_name == countries_arr[i]){
+							id = i;
+							break;
+						}
+					}
+				}
+
+				return id;
+			}
 			
 			return countries_arr[country_id];
 		}
