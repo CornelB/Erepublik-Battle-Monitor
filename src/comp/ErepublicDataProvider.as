@@ -7,7 +7,7 @@ package comp
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	
+	import flash.events.IOErrorEvent;
 	import mx.core.UIComponent;
 	
 
@@ -47,6 +47,7 @@ package comp
 			{
 				_loc_1.load(new URLRequest("http://www.erepublik.com/en"));
 				_loc_1.addEventListener(Event.COMPLETE, getActiveBattles2Step1);
+				_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Complete);
 				
 			}
 		}
@@ -66,6 +67,7 @@ package comp
 			var _loc_1:* = new URLLoader();
 			_loc_1.load(request);
 			_loc_1.addEventListener(Event.COMPLETE, getActiveBattles2Step2);
+			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Complete);
 			
 		}
 		
@@ -74,6 +76,7 @@ package comp
 			var _loc_1:* = new URLLoader();
 			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/campaigns"));
 			_loc_1.addEventListener(Event.COMPLETE, this.getActiveBattles2Complete);
+			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Complete);
 			
 		}
 		

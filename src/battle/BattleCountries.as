@@ -10,7 +10,7 @@ package battle
 	
 	import mx.containers.Canvas;
 	import mx.controls.Image;
-	
+	import mx.utils.ObjectUtil;
 	import spark.components.Label;
 
 	public class BattleCountries extends Canvas
@@ -174,10 +174,12 @@ package battle
 
 		}
 		
-		public function showOrders(oData:Object, battleVars:BattleVars):void {
+		public function showOrders(oData:Array, battleVars:BattleVars):void {
 			this.bv = battleVars;
 			this.bv.attOrders = new Array();
 			this.bv.defOrders = new Array();
+			
+			 trace (oData.toString());
 			
 			for(var i:int = 0; i<oData.length; i++){
 				if(oData[i]["side_country_id"] == this.bv.attackerID){
@@ -336,16 +338,10 @@ package battle
 				
 			}
 			
-			if(shortMessage == "Check domi")
+			if(shortMessage == "API error")
 			{
-				trace('Check domin');
 				lblMessage.addEventListener(MouseEvent.CLICK,read_api_again);
 				lblMessage.buttonMode = true;
-				
-				this.attackerImg.buttonMode = true;
-				this.attackerImg.addEventListener(MouseEvent.CLICK,attackerImgClick);
-				this.attackerImg.toolTip = 'Hide warning';
-
 			}
 			else
 			{

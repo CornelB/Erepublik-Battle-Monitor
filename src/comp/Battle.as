@@ -231,37 +231,13 @@ package comp
 		{
 			t1 = new Timer(1000);
 			t1.addEventListener(TimerEvent.TIMER, aktualizujOdswierzenia);
-			
-			
+
 			this.timerLabel = new Timer(4800);
 			this.timerLabel.addEventListener(TimerEvent.TIMER, setWhiteLabels);
-			
-			
+
 		}
 		
-		public function readApi(e:ReadApiEvent = null):void
-		{
-		 	trace(this.battleVars.battleId+': Reading API');
-			/*var _loc_1:* = new URLLoader();
-			_loc_1.load(new URLRequest("http://api.erpk.org/battle/" + this.battleVars.battleId+'.json?key=ecvgbLriaG' ));
-			_loc_1.addEventListener(Event.COMPLETE, this.readApiComplete);
-			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readApiError);*/
-			this.edp.addEventListener(ErepublikDataProviderEvent.EDP_EVENT, this.readApiComplete);
-			this.edp.getActiveBattles();
-			
-			
-		}// end function
 		
-		private function readApiError(param1:Event=null):void
-		{
-			trace(this.battleVars.battleId+': Reading API ERROR');
-			
-			this.battleCountries.showMessage("Check domi","Click to try again or click flag","warning");
-			this.battleCountries.addEventListener(ReadApiEvent.READ_API_EVENT,  readApi);
-			
-			t1.start();
-				
-		}
 
 		private function readApiComplete(param1:ErepublikDataProviderEvent) : void
 		{
@@ -290,19 +266,21 @@ package comp
 				}
 					
 			}
-
-			updateBattleData();
-
 			
-
-			if(this.battleCountries.defenderImg.hasEventListener(MouseEvent.CLICK))
-			{
-				this.battleCountries.defenderImg.removeEventListener(MouseEvent.CLICK,switchDomination);
-				this.battleCountries.defenderImg.buttonMode = false;			
-				this.battleCountries.defenderImg.toolTip = '';
+			if(this.battleVars.region == ''){
+				this.battleCountries.showMessage("API error","Click to try again","warning");
+				this.battleCountries.addEventListener(ReadApiEvent.READ_API_EVENT,  readApi);
+			} else {
+				updateBattleData();
 			}
 
 		}
+		
+		public function readApi(e:ReadApiEvent = null):void
+		{
+			this.edp.addEventListener(ErepublikDataProviderEvent.EDP_EVENT, this.readApiComplete);
+			this.edp.getActiveBattles();
+		}// end function
 		
 		private function getBattles(param1:ErepublikDataProviderEvent):Array{
 			var battles:Array = new Array();
@@ -469,23 +447,15 @@ package comp
 		_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readBattleLogError);
 	}
 		
-	public function getRegion():void
+	public function getRegion(e:ReadApiEvent = null):void
 	{
-
 		var _loc_1:* = new URLLoader();
-		
-		if(this.czy_server)
-		{
-			//_loc_1.load(new URLRequest(this.battleVars.bsurl + "?campaigns=1"));
-		}
-		else
-		{
-			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield/"+this.battleVars.battleId));
-			
-		}
+		_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield/"+this.battleVars.battleId));
 		_loc_1.addEventListener(Event.COMPLETE, this.readRegionComplete);
+
 	}// end function
 	
+
 	private function readRegionComplete(param1:Event) : void
 	{
 
@@ -514,6 +484,8 @@ package comp
 	 	 try{
 			var jsonData:Object, i:int;
 			jsonData = JSON.parse(''+param1.currentTarget.data);
+			var a:Array = jsonData["campaigns"];
+			
 
 			if(t1.running)
 			{
@@ -554,7 +526,7 @@ package comp
 						}
 	
 					}
-										this.battleCountries.defenderImg.addEventListener(MouseEvent.CLICK,switchDomination);
+					this.battleCountries.defenderImg.addEventListener(MouseEvent.CLICK,switchDomination);
 					this.battleCountries.defenderImg.buttonMode = true;			
 					this.battleCountries.defenderImg.toolTip = 'Switch Percent domination';
 					
@@ -625,7 +597,9 @@ package comp
 				battleDetails.aktualizujDominacje(battleVars);
 				
 				//battle orders
+
 				this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
+				
 				
 				this.battleVars.attackerDominOld=this.battleVars.attackerDomin;
 				this.battleVars.defenderDominOld=this.battleVars.defenderDomin;
@@ -638,7 +612,7 @@ package comp
 	 	   }catch(e:Error)
 			{
 
-				trace("sll"+ObjectUtil.toString(jsonData));
+				
 				this.battleCountries.showMessage("BS NotCorrect","BattleStats are not correct","warning");
 			}  
 			battleVars.licznikOdswierzen=battleVars.odIluOdliczacOdswierzenia;
@@ -650,7 +624,7 @@ package comp
 		private function readBattleLogError(param1:Event):void
 		{
 			trace('readBattleLogError');
-			if(! this.first_login)                     //////////////////////////////sprawdzc
+			if(! this.first_login)                     
 			{
 				this.first_login = true;
 				battleVars.licznikOdswierzen=2;
