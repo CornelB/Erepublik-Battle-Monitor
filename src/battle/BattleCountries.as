@@ -170,16 +170,12 @@ package battle
 				this.attackerImg.source = "flags/" + (sf.spaceChange(battleVars.attacker)) + ".gif";
 				this.defenderImg.source = "flags/" + (sf.spaceChange(battleVars.defender)) + ".gif";
 			}
-		
-
 		}
 		
 		public function showOrders(oData:Array, battleVars:BattleVars):void {
 			this.bv = battleVars;
 			this.bv.attOrders = new Array();
 			this.bv.defOrders = new Array();
-			
-			 trace (oData.toString());
 			
 			for(var i:int = 0; i<oData.length; i++){
 				if(oData[i]["side_country_id"] == this.bv.attackerID){
@@ -338,7 +334,7 @@ package battle
 				
 			}
 			
-			if(shortMessage == "API error")
+			if(shortMessage == "Click me")
 			{
 				lblMessage.addEventListener(MouseEvent.CLICK,read_api_again);
 				lblMessage.buttonMode = true;
@@ -369,12 +365,6 @@ package battle
 			}catch(e:Error)
 			{
 			
-			}
-			if(attackerImg.hasEventListener(MouseEvent.CLICK))
-			{
-				attackerImg.buttonMode = false;
-				attackerImg.toolTip='';
-				attackerImg.removeEventListener(MouseEvent.CLICK,attackerImgClick);
 			}
 		}
 		

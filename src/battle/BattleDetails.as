@@ -186,7 +186,7 @@ package battle
 			}
 		}
 		
-		public function finishBattleDet(winner:String):void
+		public function finishBattleDet(winner:String = ''):void
 		{
 			
 			var i:int,j:int;
@@ -200,6 +200,7 @@ package battle
 				}
 			}
 			
+			
 			var lblTheWinner:Label = new Label();
 			lblTheWinner.horizontalCenter=0;
 			lblTheWinner.y=10;
@@ -207,12 +208,16 @@ package battle
 			lblTheWinner.setStyle("color","0x006600");
 			this.addChild(lblTheWinner);
 			
+			if(winner != ''){
 			var imgTheWinner:Image = new Image();
 			imgTheWinner.y=25;
 			imgTheWinner.horizontalCenter=0;
 			imgTheWinner.source = "flags/" + (sf.spaceChange(winner)) + ".gif";
 			this.addChild(imgTheWinner);
-			
+			}
+			if(winner == ''){
+				winner = 'Unknown';
+			}
 			var lblTheWinnerCountry:Label = new Label();
 			lblTheWinnerCountry.y=45;
 			lblTheWinnerCountry.setStyle("color","0x006600");

@@ -36,6 +36,7 @@ package comp
 	import mx.events.CloseEvent;
 	import mx.managers.PopUpManager;
 	import mx.utils.ObjectUtil;
+	import mx.utils.StringUtil;
 	
 	import spark.components.BorderContainer;
 	import spark.components.Button;
@@ -267,9 +268,14 @@ package comp
 					
 			}
 			
-			if(this.battleVars.region == ''){
-				this.battleCountries.showMessage("API error","Click to try again","warning");
+			if(this.battleVars.attacker == ''){
+				this.battleCountries.showMessage("Click me","Click to try again","warning");
 				this.battleCountries.addEventListener(ReadApiEvent.READ_API_EVENT,  readApi);
+				if(this.battleVars.region == ''){
+					getRegion();
+				} else {
+					updateBattleData();
+				}
 			} else {
 				updateBattleData();
 			}
@@ -474,6 +480,28 @@ package comp
 		this.battleHeader.lblBattle.toolTip=this.battleVars.region;
 		this.battleHeader.lblBattle.buttonMode=true;
 		this.battleHeader.lblBattle.addEventListener(MouseEvent.CLICK,jumpToRegion);
+		
+
+		pattern = new RegExp('country left_side(.+?)<h3>(.+?)<\/h3>','ms');
+		li = pattern.exec(param1.currentTarget.data);
+		if(li[2]){
+			pattern = new RegExp('Resistance Force of ','ms');
+			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
+			this.battleVars.attacker =li[2];
+			this.battleVars.attackerID = id2country(null, li[2]);
+		}
+		
+		pattern = new RegExp('country right_side(.+?)<h3>(.+?)<\/h3>','ms');
+		li = pattern.exec(param1.currentTarget.data);
+		
+		if(li[2]){
+			pattern = new RegExp('Resistance Force of ','ms');
+			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
+			this.battleVars.defender =li[2];
+			this.battleVars.defenderID = id2country(null, li[2]);
+		}
+		
+		updateBattleData();
 
 	}
 	
@@ -498,10 +526,7 @@ package comp
 				}
 				else
 				{
-					battleVars.region ='';
-					this.battleVars.isResistance = false;
-					this.getRegion();
-					
+
 					for(i = 1; i<200; i++)
 					{
 						if(jsonData["division"][i])
@@ -686,6 +711,9 @@ package comp
 		private function finishBattle(isAttacker:Boolean):void
 		{
 			this.t1.stop();
+			if(this.battleVars.attacker!=''){
+				this.battleCountries.hideWarning()
+			}
 			this.battleHeader.lblRefresh.visible=false;
 			this.battleCountries.lblTime.text="Finished";
 			if(isAttacker)this.battleDetails.finishBattleDet(this.battleVars.attacker);
