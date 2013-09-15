@@ -80,7 +80,7 @@ package comp
 			this.setStyle("borderThickness","5");
 			this.setStyle("borderColor", 0x333333);
 			this.czy_server = sv.use_xampp;
-			//this.dominacja_odwrotna = dominacja_odwrotna; //z tym jak się zmieni strony i zamknie BM to później sie źle otworzy
+
 			
 			battleVars = new BattleVars(batId,batRef,sv.bsurl,sv.userID,sv.email,sv.pass);
 			
@@ -91,9 +91,7 @@ package comp
 			
 			battleDetails = new BattleDetails();
 			battleCountries = new BattleCountries();
-		/*	this.battleCountries.attackerImg.addEventListener(MouseEvent.CLICK,switchAll);
-			this.battleCountries.attackerImg.buttonMode = true;
-			this.battleCountries.attackerImg.toolTip = 'Switch All';*/
+
 			
 			battleHeader = new BattleHeader();
 			battleHeader.lblBattle.text=battleVars.battleId.toString();
@@ -119,7 +117,7 @@ package comp
 			this.addChild(vboxGlobal);
 				
 			setTimers();
-			readApi();
+			readBattleLog();
 
 			return;
 		}// end function
@@ -351,9 +349,10 @@ package comp
 			this.battleCountries.showHideHerosImage.addEventListener(MouseEvent.CLICK,showHeros);
 			this.battleCountries.showHideHerosImage.buttonMode=true;
 			
-
-			if(t1.running)battleVars.licznikOdswierzen=1;
-			else t1.start();
+			battleVars.licznikOdswierzen=1;
+			if(!t1.running){
+				t1.start();
+			}
 			
 		}// end function
 		
@@ -464,7 +463,6 @@ package comp
 
 	private function readRegionComplete(param1:Event) : void
 	{
-
 		var pattern:RegExp = new RegExp('<div id="pvp_header">(.+?)<h2>(.+?)<\/h2>','ms');
 		var li:Array = pattern.exec(param1.currentTarget.data);
 		
@@ -633,6 +631,8 @@ package comp
 				
 				timerLabel.start();
 
+			} else {
+				readApi();
 			}
 	 	   }catch(e:Error)
 			{

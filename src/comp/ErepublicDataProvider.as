@@ -3,11 +3,11 @@ package comp
 	import events.ErepublikDataProviderEvent;
 	
 	import flash.events.Event;
-
+	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.events.IOErrorEvent;
+	
 	import mx.core.UIComponent;
 	
 
@@ -67,7 +67,7 @@ package comp
 			var _loc_1:* = new URLLoader();
 			_loc_1.load(request);
 			_loc_1.addEventListener(Event.COMPLETE, getActiveBattles2Step2);
-			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Complete);
+			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Error);
 			
 		}
 		
@@ -76,12 +76,17 @@ package comp
 			var _loc_1:* = new URLLoader();
 			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/campaigns"));
 			_loc_1.addEventListener(Event.COMPLETE, this.getActiveBattles2Complete);
-			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Complete);
+			_loc_1.addEventListener(IOErrorEvent.IO_ERROR, getActiveBattles2Error);
 			
+		}
+		
+		private function getActiveBattles2Error(param1:Event):void{
+			trace('bb',param1);
 		}
 		
 		private function  getActiveBattles2Complete(param1:Event) : void
 		{
+			trace('ok',  param1.currentTarget.data);
 			var edpEvent:ErepublikDataProviderEvent = new  ErepublikDataProviderEvent( ErepublikDataProviderEvent.EDP_EVENT);
 			edpEvent.data = param1.currentTarget.data
 			dispatchEvent(edpEvent);
