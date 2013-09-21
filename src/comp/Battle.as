@@ -468,12 +468,6 @@ package comp
 		
 		this.battleVars.region = li[2];
 		
-		pattern = new RegExp('isResistance(.+?): (.+?),','ms');
-		li = pattern.exec(param1.currentTarget.data);
-
-
-		if(li[2] == '1')this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
-		else this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17)
 
 		this.battleHeader.lblBattle.toolTip=this.battleVars.region;
 		this.battleHeader.lblBattle.buttonMode=true;
@@ -483,10 +477,16 @@ package comp
 		pattern = new RegExp('country left_side(.+?)<h3>(.+?)<\/h3>','ms');
 		li = pattern.exec(param1.currentTarget.data);
 		if(li[2]){
+			this.battleVars.isResistance = true;
+			this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
+
 			pattern = new RegExp('Resistance Force of ','ms');
 			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
 			this.battleVars.attacker =li[2];
 			this.battleVars.attackerID = id2country(null, li[2]);
+		} else {
+			this.battleVars.isResistance = false;
+			this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17);
 		}
 		
 		pattern = new RegExp('country right_side(.+?)<h3>(.+?)<\/h3>','ms');
@@ -620,7 +620,7 @@ package comp
 				battleDetails.aktualizujDominacje(battleVars);
 				
 				//battle orders
-
+				trace("sll"+param1.currentTarget.data);
 				this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
 				
 				

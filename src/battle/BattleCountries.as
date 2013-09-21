@@ -2,8 +2,11 @@ package battle
 {
 	import events.ReadApiEvent;
 	
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	import flash.utils.Timer;
 	
 	import flashx.textLayout.formats.Float;
@@ -11,6 +14,7 @@ package battle
 	import mx.containers.Canvas;
 	import mx.controls.Image;
 	import mx.utils.ObjectUtil;
+	
 	import spark.components.Label;
 
 	public class BattleCountries extends Canvas
@@ -169,7 +173,35 @@ package battle
 				
 				this.attackerImg.source = "flags/" + (sf.spaceChange(battleVars.attacker)) + ".gif";
 				this.defenderImg.source = "flags/" + (sf.spaceChange(battleVars.defender)) + ".gif";
+				
+				this.bv = battleVars;
+				if(battleVars.isResistance){
+					this.attackerImg.addEventListener(MouseEvent.CLICK,chooseResistance);
+					this.attackerImg.buttonMode = true;
+					this.attackerImg.toolTip = "Join Resistance";
+					
+					this.defenderImg.addEventListener(MouseEvent.CLICK,chooseDefenders);
+					this.defenderImg.buttonMode = true;
+					this.defenderImg.toolTip = "Fight for " + battleVars.defender;
+				}
+				
 			}
+		}
+		
+		protected function chooseResistance(p1:Event):void{
+			var _loc_1:* = new URLLoader();
+			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield-choose-side/"+this.bv.battleId + '/' + this.bv.attackerID));
+			_loc_1.addEventListener(Event.COMPLETE, this.chooseComplete);
+		}
+		
+		protected function chooseDefenders(p1:Event):void{
+			var _loc_1:* = new URLLoader();
+			_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield-choose-side/"+this.bv.battleId + '/' + this.bv.defenderID));
+			_loc_1.addEventListener(Event.COMPLETE, this.chooseComplete);
+		}
+		
+		protected function chooseComplete(p1:Event):void{
+			this.bv.licznikOdswierzen = 0;
 		}
 		
 		public function showOrders(oData:Array, battleVars:BattleVars):void {
