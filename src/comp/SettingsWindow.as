@@ -223,6 +223,7 @@ package comp
 			use_login_rb.groupName = 'server_type';
 			use_login_rb.y=127;
 			use_login_rb.selected = !sv.use_xampp;
+			use_login_rb.enabled = sv.use_xampp;
 			use_login_rb.horizontalCenter=0;
 			use_login_rb.addEventListener(Event.CHANGE,server_type_change);
 			this.addChild(use_login_rb);
@@ -232,7 +233,7 @@ package comp
 			lbl_bsurl.setStyle("fontSize",12); 
 			lbl_bsurl.y = 157;
 			lbl_bsurl.x = 10;
-			lbl_bsurl.toolTip="battle-stats url e.g. http://localhost/battle-stats.php";
+			lbl_bsurl.toolTip="option disabled";
 			this.addChild(lbl_bsurl);
 			
 			tin_bsurl = new TextInput();
@@ -241,7 +242,7 @@ package comp
 			tin_bsurl.y = 150;
 			tin_bsurl.width = 195;
 			tin_bsurl.right = 10;
-			tin_bsurl.toolTip="battle-stats url e.g. http://localhost/battle-stats.php";
+			tin_bsurl.toolTip="option disabled";
 			this.addChild(tin_bsurl);
 			
 			var lbl_email:Label = new Label();

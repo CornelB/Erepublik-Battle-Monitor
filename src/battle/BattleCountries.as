@@ -366,7 +366,7 @@ package battle
 				
 			}
 			
-			if(shortMessage == "Click me")
+			if(shortMessage == "Refresh")
 			{
 				lblMessage.addEventListener(MouseEvent.CLICK,read_api_again);
 				lblMessage.buttonMode = true;

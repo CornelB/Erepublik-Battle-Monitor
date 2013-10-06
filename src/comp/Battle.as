@@ -267,8 +267,7 @@ package comp
 			}
 			
 			if(this.battleVars.attacker == ''){
-				this.battleCountries.showMessage("Click me","Click to try again","warning");
-				this.battleCountries.addEventListener(ReadApiEvent.READ_API_EVENT,  readApi);
+				showReloadWarning();
 				if(this.battleVars.region == ''){
 					getRegion();
 				} else {
@@ -278,6 +277,21 @@ package comp
 				updateBattleData();
 			}
 
+		}
+		
+		public function reloadBattle(e:ReadApiEvent = null):void{
+			this.battleCountries.hideWarning();
+			this.first_login = true;
+			battleVars.licznikOdswierzen=battleVars.odIluOdliczacOdswierzenia;
+			battleVars.czyMoznaOdswierzac=true;
+			this.readBattleLog();
+		}
+		
+		public function showReloadWarning(e:Event = null):void{
+			this.battleCountries.showMessage("Refresh","Click to try again","warning");
+			if(! this.battleCountries.hasEventListener(ReadApiEvent.READ_API_EVENT)){
+				this.battleCountries.addEventListener(ReadApiEvent.READ_API_EVENT, reloadBattle);
+			}
 		}
 		
 		public function readApi(e:ReadApiEvent = null):void
@@ -295,8 +309,7 @@ package comp
 			var result:Array = pattern.exec(str);
 			
 			while (result != null) {
-				//trace (result.index, "\t", result[1]);
-				
+
 				var pattern2:RegExp = new RegExp('(.+?)">');
 				var bid:Array = pattern2.exec(result[1]);
 				
@@ -311,17 +324,13 @@ package comp
 				pattern2 = /alt="(.+?)" title="/g;
 				var att:Array = pattern2.exec(result[1]);
 				
-				
-				
 				pattern2 = /.png" title="(.+?)"/g;
 				var def:Array =  pattern2.exec(result[1]);
 				while (att[1]==def[1]){
 					def =  pattern2.exec(result[1]);
 				}
-				
-				
+		
 				battles.push({bid:bid[1],region:region[1],att:att[1],def:def[1],rws:rw});
-				
 				result = pattern.exec(str);
 			}
 			
@@ -330,9 +339,7 @@ package comp
 		
 		public function updateBattleData():void
 		{
-			this.battleCountries.updateData(this.battleVars);
-		
-			
+			this.battleCountries.updateData(this.battleVars);		
 			if(!this.battleVars.isResistance)this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17)
 			else this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
 			this.battleHeader.lblBattle.toolTip=this.battleVars.region;
@@ -356,14 +363,7 @@ package comp
 			
 		}// end function
 		
-		private function switchDomination(e:MouseEvent):void
-		{
-			dominacja_odwrotna = !dominacja_odwrotna;
-			battleVars.licznikOdswierzen = 0;
-			this.battleCountries.hideWarning();
-		}
-		
-		
+
 		private function showHeros(event:Event):void
 		{
 			var changeSizeEvent:ChangeSizeEvent = new ChangeSizeEvent (ChangeSizeEvent.CHANGE_SIZE_EVENT);
@@ -391,47 +391,25 @@ package comp
 		private function readBattleLog():void
 		{
 			var _loc_1:URLLoader = new URLLoader();
-			if(czy_server)
-			{
-				
-			//	trace(this.battleVars.bsurl + "?bid=" + this.battleVars.battleId);
-				_loc_1.load(new URLRequest(this.battleVars.bsurl + "?bid=" + this.battleVars.battleId ));
-				_loc_1.addEventListener(Event.COMPLETE, this.readBattleLogComplete);
-				_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readBattleLogError);
-			}
-			else
-			{
-				if(first_login)
-				{
-			//	trace('bez xampp');
+			if(first_login){
 				_loc_1.load(new URLRequest("http://www.erepublik.com/en"));
 				_loc_1.addEventListener(Event.COMPLETE, this.readBattleLogStep1);
 				_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readBattleLogError);
 				first_login = false;
-				}
-				else
-				{
-					//var _loc_1:* = new URLLoader();
-				//	trace('kolejne');
-					_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battle-stats/" + this.battleVars.battleId ));
-					_loc_1.addEventListener(Event.COMPLETE, this.readBattleLogComplete);
-					_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readBattleLogError);
-				
-				}
-				
+			} else {
+				_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battle-stats/" + this.battleVars.battleId ));
+				_loc_1.addEventListener(Event.COMPLETE, this.readBattleLogComplete);
+				_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readBattleLogError);
 			}
-	
+
 			
 
 		}// end function
 	
 	private function readBattleLogStep1(param1:Event) : void
 	{
-		
 		var pattern:RegExp = /name="_token" value="([a-z0-9]+)"/i;
-
 		var regex_token:Array = pattern.exec(param1.currentTarget.data);
-
 		var request:URLRequest = new URLRequest("http://www.erepublik.com/en/login");
 		
 		request.data = '_token='+regex_token[1]+'&citizen_email='+this.battleVars.email+'&citizen_password='+this.battleVars.pass+'&commit=Login';
@@ -464,41 +442,47 @@ package comp
 	private function readRegionComplete(param1:Event) : void
 	{
 		var pattern:RegExp = new RegExp('<div id="pvp_header">(.+?)<h2>(.+?)<\/h2>','ms');
-		var li:Array = pattern.exec(param1.currentTarget.data);
+		var li:Array = pattern.exec(param1.currentTarget.data), li2:Array;
 		
 		this.battleVars.region = li[2];
-		
-
 		this.battleHeader.lblBattle.toolTip=this.battleVars.region;
 		this.battleHeader.lblBattle.buttonMode=true;
 		this.battleHeader.lblBattle.addEventListener(MouseEvent.CLICK,jumpToRegion);
 		
-
 		pattern = new RegExp('country left_side(.+?)<h3>(.+?)<\/h3>','ms');
 		li = pattern.exec(param1.currentTarget.data);
 		if(li[2]){
-			this.battleVars.isResistance = true;
-			this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
-
 			pattern = new RegExp('Resistance Force of ','ms');
-			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
+			if(li[2].search(pattern) != -1){
+				this.battleVars.isResistance = true;
+				li[2] =  StringUtil.trim(li[2].replace(pattern,''));
+			} else {
+				this.battleVars.isResistance = false;
+			}
 			this.battleVars.attacker =li[2];
 			this.battleVars.attackerID = id2country(null, li[2]);
-		} else {
-			this.battleVars.isResistance = false;
-			this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17);
 		}
 		
 		pattern = new RegExp('country right_side(.+?)<h3>(.+?)<\/h3>','ms');
 		li = pattern.exec(param1.currentTarget.data);
-		
 		if(li[2]){
 			pattern = new RegExp('Resistance Force of ','ms');
-			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
+			if(li[2].search(pattern) != -1){
+				this.battleVars.isResistance = true;
+				li[2] =  StringUtil.trim(li[2].replace(pattern,''));
+			} else {
+				this.battleVars.isResistance = false;
+			}
 			this.battleVars.defender =li[2];
 			this.battleVars.defenderID = id2country(null, li[2]);
+		
 		}
 		
+		if(!this.battleVars.isResistance){
+			this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,17)
+		}   else {
+			this.battleHeader.lblBattle.text=this.battleVars.battleId+'.'+sf.skroc(this.battleVars.region,12)+'(RW)';
+		}
 		updateBattleData();
 
 	}
@@ -548,11 +532,7 @@ package comp
 							break;
 						}
 	
-					}
-					this.battleCountries.defenderImg.addEventListener(MouseEvent.CLICK,switchDomination);
-					this.battleCountries.defenderImg.buttonMode = true;			
-					this.battleCountries.defenderImg.toolTip = 'Switch Percent domination';
-					
+					}				
 					updateBattleData();
 					
 				}
@@ -620,15 +600,13 @@ package comp
 				battleDetails.aktualizujDominacje(battleVars);
 				
 				//battle orders
-				trace("sll"+param1.currentTarget.data);
+				//trace("sll"+param1.currentTarget.data);
 				this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
 				
 				
 				this.battleVars.attackerDominOld=this.battleVars.attackerDomin;
 				this.battleVars.defenderDominOld=this.battleVars.defenderDomin;
 				this.battleVars.defenderPercentOld=this.battleVars.defenderPercent;
-				
-				
 				timerLabel.start();
 
 			} else {
@@ -636,8 +614,6 @@ package comp
 			}
 	 	   }catch(e:Error)
 			{
-
-				
 				this.battleCountries.showMessage("BS NotCorrect","BattleStats are not correct","warning");
 			}  
 			battleVars.licznikOdswierzen=battleVars.odIluOdliczacOdswierzenia;
@@ -646,30 +622,12 @@ package comp
 		}
 		
 		
-		private function readBattleLogError(param1:Event):void
-		{
-			trace('readBattleLogError');
-			if(! this.first_login)                     
-			{
-				this.first_login = true;
-				battleVars.licznikOdswierzen=2;
-				battleVars.czyMoznaOdswierzac=true;
-				
-			}
-			else
-			{
-			
-				this.battleCountries.showMessage("BS Error!","BattleStats Error","warning");
-				battleVars.licznikOdswierzen=battleVars.odIluOdliczacOdswierzenia;
-				battleVars.czyMoznaOdswierzac=true;
-			}
+		private function readBattleLogError(param1:Event):void	{
+			showReloadWarning();
 		}
 		
-		
-		
-		private function openUpdateWindow(event:Event):void{
-			//	trace('openUpdateWindow');
 
+		private function openUpdateWindow(event:Event):void{
 			var anTW:AnimatedTitleWindow = new AnimatedTitleWindow(this.battleVars.odIluOdliczacOdswierzenia);
 			anTW.title = "Choose update freq."
 			anTW.showCloseButton = true;
@@ -722,9 +680,9 @@ package comp
 		
 		private function jumpToRegion(param1:Event):void
 		{
-			
-			if(this.battleVars.region!='')navigateToURL(new URLRequest("http://www.erepublik.com/en/region/" + sf.spaceChange(this.battleVars.region)));
-
+			if(this.battleVars.region!='') {
+				navigateToURL(new URLRequest("http://www.erepublik.com/en/region/" + sf.spaceChange(this.battleVars.region)));
+			}
 			return;
 		}// end function
 		

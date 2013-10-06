@@ -182,8 +182,6 @@
 				this.edp.changeData(this.sv.email, this.sv.pass, this.sv.bsurl, this.sv.use_xampp);
 
 
-
-			 	trace('zapisuje');
 				for (_i=0;_i<this.btlList.numChildren;_i++)
 				{
 					var bt:Battle =	btlList.getChildAt(_i) as Battle;
@@ -249,7 +247,7 @@
 			protected function saveSettings(event:SaveSettingsEvent):void
 			{
 				this.sv=event.sv;
-				trace("st"+ObjectUtil.toString(event.sv));
+				//trace("st"+ObjectUtil.toString(event.sv));
 				
 				aktualizujWyskokoscOknaGlownego(0);
 
@@ -473,7 +471,7 @@
 				var result:Array = pattern.exec(str);
 				
 				while (result != null) {
-					trace (result.index, "\t", result[1]);
+					//trace (result.index, "\t", result[1]);
 					
 					var pattern2:RegExp = new RegExp('(.+?)">');
 					var bid:Array = pattern2.exec(result[1]);
