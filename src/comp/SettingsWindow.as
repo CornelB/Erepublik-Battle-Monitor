@@ -208,6 +208,7 @@ package comp
 			use_server_rb.groupName = 'server_type';
 			use_server_rb.y=127;
 			use_server_rb.x=10;
+			use_server_rb.enabled = sv.use_xampp;
 			use_server_rb.selected = sv.use_xampp;
 			use_server_rb.addEventListener(Event.CHANGE,server_type_change);
 			this.addChild(use_server_rb);
@@ -223,7 +224,6 @@ package comp
 			use_login_rb.groupName = 'server_type';
 			use_login_rb.y=127;
 			use_login_rb.selected = !sv.use_xampp;
-			use_login_rb.enabled = sv.use_xampp;
 			use_login_rb.horizontalCenter=0;
 			use_login_rb.addEventListener(Event.CHANGE,server_type_change);
 			this.addChild(use_login_rb);
