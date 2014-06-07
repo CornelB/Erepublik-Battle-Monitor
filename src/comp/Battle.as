@@ -760,7 +760,11 @@ package comp
 			countries_arr[29] = 'United Kingdom'; 
 			countries_arr[74] = 'Uruguay'; 
 			countries_arr[28] = 'Venezuela';
-			
+			countries_arr[169] = 'Armenia';
+			countries_arr[171] = 'Cuba';
+			countries_arr[170] = 'Nigeria';
+			countries_arr[168] = 'Georgia';
+		
 			
 			if(country_name != ''){
 				var id:int=1;

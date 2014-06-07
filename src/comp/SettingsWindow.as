@@ -46,6 +46,7 @@ package comp
 		);
 		private var countries_arr:Array = new Array(
 			"Albania",
+			"Armenia",
 			"Argentina", 
 			"Australia", 
 			"Austria", 
@@ -60,6 +61,7 @@ package comp
 			"China", 
 			"Colombia", 
 			"Croatia", 
+			"Cuba",
 			"Cyprus", 
 			"Czech Republic", 
 			"Denmark", 
@@ -67,6 +69,7 @@ package comp
 			"Estonia", 
 			"Finland", 
 			"France", 
+			"Georgia",
 			"Germany", 
 			"Greece", 
 			"Hungary", 
@@ -84,6 +87,7 @@ package comp
 			"Montenegro", 
 			"Netherlands", 
 			"New Zealand", 
+			"Nigeria",
 			"North Korea", 
 			"Norway", 
 			"Pakistan", 
