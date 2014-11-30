@@ -144,7 +144,7 @@ package battle
 				czyDamage=!czyDamage;
 				updateLabels();
 				
-				if(czyDamage)this.toolTip="Show fighters";
+				if(czyDamage)this.toolTip="Show kills";
 				else this.toolTip="Show damage";
 			}
 			
@@ -249,7 +249,7 @@ package battle
 				
 				try{
 					if(czyDamage)nicksArrA[i].text=nf.format(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["damage"]);
-					else nicksArrA[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["citizen_name"],10);
+					else nicksArrA[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["kills"],10);
 				 	nicksArrA[i].toolTip=herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["citizen_name"];
 					nicksArrA[i].id="at_"+herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["citizen_id"];
 					
@@ -267,7 +267,7 @@ package battle
 				}catch(e:Error){};
 				try{	
 					if(czyDamage)nicksArrD[i].text=nf.format(herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["damage"]);
-					else nicksArrD[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["citizen_name"],10);
+					else nicksArrD[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["kills"],10);
 					nicksArrD[i].toolTip=herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["citizen_name"];
 					nicksArrD[i].id="de_"+herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["citizen_id"];
 				}catch(e:Error){
