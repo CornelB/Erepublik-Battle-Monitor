@@ -35,7 +35,7 @@ package battle
 		private var bv:BattleVars;
 		private var batHeros:Object=new Object();
 		private var labelsTimer:Timer=new Timer(4900);
-		private var czyDamage:Boolean=true;
+		private var currStage:int=1;
 		
 	
 		
@@ -49,8 +49,7 @@ package battle
 			this.bv=bv;
 			this.labelsTimer.addEventListener(TimerEvent.TIMER, labelsToBlackTimer);
 			this.buttonMode=true;
-			if(czyDamage)this.toolTip="Show fighters";
-			else this.toolTip="Show damage";
+
 			
 
 			bgImgL = new Image();
@@ -141,13 +140,24 @@ package battle
 		{
 			if(!(event.target is Label))
 			{
-				czyDamage=!czyDamage;
-				updateLabels();
-				
-				if(czyDamage)this.toolTip="Show kills";
-				else this.toolTip="Show damage";
+				this.setStage(++this.currStage);
 			}
 			
+		}
+		
+		protected function setStage(iStage: int):void{
+			if(iStage > 3){
+				iStage = iStage - 3;
+			}
+			this.currStage = iStage;
+			if(iStage == 1){
+				this.toolTip="Show fighters";
+			} else if(iStage == 2) {
+				this.toolTip="Show kills";
+			} else {
+				this.toolTip="Show damage";
+			}
+			this.updateLabels();
 		}
 		
 		private function jumpToCitizen(event:MouseEvent):void
@@ -155,7 +165,6 @@ package battle
 		 	try{
 				var lab_id:String=(event.target as Label).id;
 			 	var cit_id:int=int(lab_id.substr(3,lab_id.length));
-				trace("cit_id:"+cit_id);
 			 	if(cit_id>0)navigateToURL(new URLRequest("http://www.erepublik.com/en/citizen/profile/" + cit_id));
 			}
 			catch(e:Error)
@@ -169,12 +178,10 @@ package battle
 		
 		public function updateHeros(batHeros:Object,fightersData:Object):void
 		{
-			trace('uh bv.attacker:'+this.bv.attackerID);
 			var i:int;
 		
 			for( var curBat:* in batHeros); //curent battle
-			
-			
+						
 			herosOb=new Object();
 			
 		 	for(var div:* in batHeros[curBat]) //for each division
@@ -222,7 +229,8 @@ package battle
 		}
 		private function changeDivision(e:Event):void
 		{
-			czyDamage=!czyDamage;
+
+			this.setStage(this.currStage+2);
 			labelsToBlack();
 			updateLabels();
 			findUser();
@@ -233,9 +241,24 @@ package battle
 		
 		private function updateLabels():void
 		{
-			
+			var source:String = "damage";
 			var nf:NumberFormatter=new NumberFormatter();
 			nf.thousandsSeparatorTo=" ";
+
+			switch(this.currStage){
+				case 1 :{
+					source = 'damage';
+					break;
+				}
+				case 2: {
+					source = 'citizen_name';
+					break;
+				}
+				case 3: {
+					source = 'kills';
+					break;
+				}
+			}
 			
 			for(var i:int=0;i<5;i++)
 			{
@@ -248,8 +271,12 @@ package battle
 				}catch(e:Error){};
 				
 				try{
-					if(czyDamage)nicksArrA[i].text=nf.format(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["damage"]);
-					else nicksArrA[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["kills"],10);
+					if(this.currStage == 2){
+						nicksArrA[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i][source],11);
+					} else {
+						nicksArrA[i].text=nf.format(herosOb[this.divTabVew.selectedIndex+1]["attacker"][i][source]);
+					}
+					
 				 	nicksArrA[i].toolTip=herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["citizen_name"];
 					nicksArrA[i].id="at_"+herosOb[this.divTabVew.selectedIndex+1]["attacker"][i]["citizen_id"];
 					
@@ -266,8 +293,11 @@ package battle
 					
 				}catch(e:Error){};
 				try{	
-					if(czyDamage)nicksArrD[i].text=nf.format(herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["damage"]);
-					else nicksArrD[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["kills"],10);
+					if(this.currStage == 2){
+						nicksArrD[i].text=sf.skroc(herosOb[this.divTabVew.selectedIndex+1]["defender"][i][source],11);
+					} else {
+						nicksArrD[i].text=nf.format(herosOb[this.divTabVew.selectedIndex+1]["defender"][i][source]);
+					}
 					nicksArrD[i].toolTip=herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["citizen_name"];
 					nicksArrD[i].id="de_"+herosOb[this.divTabVew.selectedIndex+1]["defender"][i]["citizen_id"];
 				}catch(e:Error){
