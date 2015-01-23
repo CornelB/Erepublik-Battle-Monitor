@@ -662,8 +662,8 @@ package comp
 			this.battleCountries.lblAttackTot.text=atakujacyTotal.toString();
 			this.battleCountries.lblDefendTot.text=obroncaTotal.toString();
 			
-			if(atakujacyTotal>=83)finishBattle(true);
-			if(obroncaTotal>=83)finishBattle(false);
+			if(atakujacyTotal>=94)finishBattle(true);
+			if(obroncaTotal>=94)finishBattle(false);
 			
 		}
 		private function finishBattle(isAttacker:Boolean):void
