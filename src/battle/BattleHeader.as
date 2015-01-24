@@ -1,7 +1,9 @@
 package battle
 {
-	import mx.containers.Canvas;
 	import flash.events.MouseEvent;
+	
+	import mx.containers.Canvas;
+	
 	import spark.components.Label;
 
 	public class BattleHeader extends Canvas
@@ -9,6 +11,7 @@ package battle
 		
 		public var lblBattle:Label;
 		public var lblRefresh:Label;
+		protected var _bIsEpic:Boolean;
 		
 		public function BattleHeader()
 		{
@@ -37,16 +40,29 @@ package battle
 		
 		private function labelMouseOver(event:MouseEvent):void
 		{
-			event.target.setStyle("color","#800000");
+			event.target.setStyle("color","#dd3000");
 			return;
 		}
 		
 		private function labelMouseOut(event:MouseEvent):void
 		{
-			event.target.setStyle("color","#000000");
+			if(this._bIsEpic){
+				lblBattle.setStyle("color","#dd3000");
+			} else {
+				lblBattle.setStyle("color","#000000");
+			}
 			return;
 		}
 		
+		public function setEpic(bIsEpic:Boolean):void{
+			this._bIsEpic = bIsEpic;
+			if(this._bIsEpic){
+				lblBattle.setStyle("color","#dd3000");
+			} else {
+				lblBattle.setStyle("color","#000000");
+			}
+			return;
+		}
 
 	}
 }

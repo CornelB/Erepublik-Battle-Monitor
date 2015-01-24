@@ -602,7 +602,8 @@ package comp
 				//battle orders
 				//trace("sll"+param1.currentTarget.data);
 				this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
-				
+				trace('sadasd' + jsonData["epicBattle"]);
+				this.battleHeader.setEpic(jsonData["epicBattle"] == '1');
 				
 				this.battleVars.attackerDominOld=this.battleVars.attackerDomin;
 				this.battleVars.defenderDominOld=this.battleVars.defenderDomin;
