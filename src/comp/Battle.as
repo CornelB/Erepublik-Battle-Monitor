@@ -495,6 +495,9 @@ package comp
 			jsonData = JSON.parse(''+param1.currentTarget.data);
 			var a:Array = jsonData["campaigns"];
 			
+			if(battleVars.defenderID == battleVars.attackerID){
+				battleVars.attackerID = 255;
+			}
 
 			if(t1.running)
 			{
