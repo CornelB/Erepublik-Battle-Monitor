@@ -22,7 +22,7 @@
 
 	<!-- An application version designator (such as "v1", "2.5", or "Alpha 1"). 
 		Required. -->
-	<versionNumber>2.33</versionNumber>
+	<versionNumber>2.34</versionNumber>
 
 	<!-- Description, displayed in the AIR application installer. May have multiple 
 		values for each language. See samples or xsd schema file. Optional. -->

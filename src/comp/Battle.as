@@ -324,13 +324,12 @@ package comp
 				pattern2 = /alt="(.+?)" title="/g;
 				var att:Array = pattern2.exec(result[1]);
 				
-				pattern2 = /.png" title="(.+?)"/g;
+				pattern2 = /opponent_holder revam(.+?)<strong>(.+?)<\/strong>/g;
+			//	trace(result[1]);
 				var def:Array =  pattern2.exec(result[1]);
-				while (att[1]==def[1]){
-					def =  pattern2.exec(result[1]);
-				}
 		
-				battles.push({bid:bid[1],region:region[1],att:att[1],def:def[1],rws:rw});
+					battles.push({bid:bid[1],region:region[1],att:att[1],def:def[2],rws:rw});
+
 				result = pattern.exec(str);
 			}
 			
@@ -602,7 +601,7 @@ package comp
 				//battle orders
 				//trace("sll"+param1.currentTarget.data);
 				this.battleCountries.showOrders(jsonData["campaigns"], this.battleVars);
-				trace('sadasd' + jsonData["epicBattle"]);
+			//	trace('sadasd' + jsonData["epicBattle"]);
 				this.battleHeader.setEpic(jsonData["epicBattle"] == '1');
 				
 				this.battleVars.attackerDominOld=this.battleVars.attackerDomin;

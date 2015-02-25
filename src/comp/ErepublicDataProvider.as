@@ -86,7 +86,7 @@ package comp
 		
 		private function  getActiveBattles2Complete(param1:Event) : void
 		{
-			trace('ok',  param1.currentTarget.data);
+			//trace('ok',  param1.currentTarget.data);
 			var edpEvent:ErepublikDataProviderEvent = new  ErepublikDataProviderEvent( ErepublikDataProviderEvent.EDP_EVENT);
 			edpEvent.data = param1.currentTarget.data
 			dispatchEvent(edpEvent);

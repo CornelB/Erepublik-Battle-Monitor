@@ -78,21 +78,13 @@ package comp
 			
 			pattern2 = /alt="(.+?)" title="/g;
 			var att:Array = pattern2.exec(result[1]);
-			
-			
-			
-			pattern2 = /.png" title="(.+?)"/g;
+	
+			pattern2 = /opponent_holder revam(.+?)<strong>(.+?)<\/strong>/g;
 			var def:Array =  pattern2.exec(result[1]);
-			while (att[1]==def[1]){
-				def =  pattern2.exec(result[1]);
-			}
-			//trace (def[1]);
-			
-			//vbox1.addChild(bil[bil.push(new BattleInList(170,38,bid[1],region[1],att[1],def[1],rw))-1]);
 
 			
 			
-			battles.push({bid:bid[1],region:region[1],att:att[1],def:def[1],rws:rw});
+			battles.push({bid:bid[1],region:region[1],att:att[1],def:def[2],rws:rw});
 
 			result = pattern.exec(str);
 		}

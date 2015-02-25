@@ -489,14 +489,10 @@
 					
 					
 					
-					pattern2 = /.png" title="(.+?)"/g;
+					pattern2 = /opponent_holder revam(.+?)<strong>(.+?)<\/strong>/g;
 					var def:Array =  pattern2.exec(result[1]);
-					while (att[1]==def[1]){
-						def =  pattern2.exec(result[1]);
-					}
-					
-					
-					battles.push({bid:bid[1],region:region[1],att:att[1],def:def[1],rws:rw});
+
+					battles.push({bid:bid[1],region:region[1],att:att[1],def:def[2],rws:rw});
 					
 					result = pattern.exec(str);
 				}
