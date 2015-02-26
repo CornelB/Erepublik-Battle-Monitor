@@ -432,23 +432,24 @@ package comp
 	public function getRegion(e:ReadApiEvent = null):void
 	{
 		var _loc_1:* = new URLLoader();
-		_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield/"+this.battleVars.battleId));
+		_loc_1.load(new URLRequest("http://www.erepublik.com/en/military/battlefield-new/"+this.battleVars.battleId));
 		_loc_1.addEventListener(Event.COMPLETE, this.readRegionComplete);
+		_loc_1.addEventListener(IOErrorEvent.IO_ERROR, this.readBattleLogError);
 
 	}// end function
 	
 
 	private function readRegionComplete(param1:Event) : void
 	{
-		var pattern:RegExp = new RegExp('<div id="pvp_header">(.+?)<h2>(.+?)<\/h2>','ms');
-		var li:Array = pattern.exec(param1.currentTarget.data), li2:Array;
+		var pattern:RegExp = new RegExp('href="/en/main/region/(.+?)"','gm');
+		var li:Array = pattern.exec(param1.currentTarget.data);
 		
-		this.battleVars.region = li[2];
+		this.battleVars.region = li[1];
 		this.battleHeader.lblBattle.toolTip=this.battleVars.region;
 		this.battleHeader.lblBattle.buttonMode=true;
 		this.battleHeader.lblBattle.addEventListener(MouseEvent.CLICK,jumpToRegion);
 		
-		pattern = new RegExp('country left_side(.+?)<h3>(.+?)<\/h3>','ms');
+		pattern = new RegExp('country left_side(.+?)title="(.+?)"','ms');
 		li = pattern.exec(param1.currentTarget.data);
 		if(li[2]){
 			pattern = new RegExp('Resistance Force of ','ms');
@@ -458,11 +459,13 @@ package comp
 			} else {
 				this.battleVars.isResistance = false;
 			}
+			pattern = new RegExp(' Revolution','ms');
+			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
 			this.battleVars.attacker =li[2];
 			this.battleVars.attackerID = id2country(null, li[2]);
 		}
 		
-		pattern = new RegExp('country right_side(.+?)<h3>(.+?)<\/h3>','ms');
+		pattern = new RegExp('country right_side(.+?)title="(.+?)"','ms');
 		li = pattern.exec(param1.currentTarget.data);
 		if(li[2]){
 			pattern = new RegExp('Resistance Force of ','ms');
@@ -472,6 +475,8 @@ package comp
 			} else {
 				this.battleVars.isResistance = false;
 			}
+			pattern = new RegExp(' Revolution','ms');
+			li[2] =  StringUtil.trim(li[2].replace(pattern,''));
 			this.battleVars.defender =li[2];
 			this.battleVars.defenderID = id2country(null, li[2]);
 		
