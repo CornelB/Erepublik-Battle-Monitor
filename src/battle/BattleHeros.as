@@ -190,13 +190,13 @@ package battle
 				var top5:Object=new Object();
 				
 				var top5cit:Object=new Object();
-				for(var plr:* in batHeros[curBat][div][this.bv.attackerID]) //for each player -attacker
+				for(var plr:* in batHeros[curBat][div][this.bv.attackerID]['top_damage']) //for each player -attacker
 				{
 				
 				    var cit:Object=new Object();
-					cit["damage"]=batHeros[curBat][div][this.bv.attackerID][plr]["damage"];
-					cit["kills"]=batHeros[curBat][div][this.bv.attackerID][plr]["kills"];
-					cit["citizen_id"]=batHeros[curBat][div][this.bv.attackerID][plr]["citizen_id"];
+					cit["damage"]=batHeros[curBat][div][this.bv.attackerID]['top_damage'][plr]["damage"];
+					cit["kills"]=batHeros[curBat][div][this.bv.attackerID]['top_damage'][plr]["kills"];
+					cit["citizen_id"]=batHeros[curBat][div][this.bv.attackerID]['top_damage'][plr]["citizen_id"];
 				 	cit["citizen_name"]=fightersData[cit["citizen_id"]]["name"];
 					top5cit[plr]=cit;
 
@@ -204,13 +204,13 @@ package battle
 			 	top5["attacker"]=top5cit;
 				
 				top5cit=new Object();
-				for(plr in batHeros[curBat][div][this.bv.defenderID]) //for each player -attacker
+				for(plr in batHeros[curBat][div][this.bv.defenderID]['top_damage']) //for each player -attacker
 				{
 										
 					cit=new Object();
-					cit["damage"]=batHeros[curBat][div][this.bv.defenderID][plr]["damage"];
-					cit["kills"]=batHeros[curBat][div][this.bv.defenderID][plr]["kills"];
-					cit["citizen_id"]=batHeros[curBat][div][this.bv.defenderID][plr]["citizen_id"];
+					cit["damage"]=batHeros[curBat][div][this.bv.defenderID]['top_damage'][plr]["damage"];
+					cit["kills"]=batHeros[curBat][div][this.bv.defenderID]['top_damage'][plr]["kills"];
+					cit["citizen_id"]=batHeros[curBat][div][this.bv.defenderID]['top_damage'][plr]["citizen_id"];
 				 	cit["citizen_name"]=fightersData[cit["citizen_id"]]["name"];
 					top5cit[plr]=cit;
 					
